@@ -49,22 +49,23 @@ namespace lib {
 	}
 
 	void memcpy_by_sixteen_aligned(unsigned long d, unsigned long s, size_t n) {
-		size_t offset = d % 16;
+		size_t offset = 16 - d % 16;
 		if (offset != 16) {
-			offset = 16 - offset;
 			memcpy_by_one(d, s, offset);
 			n -= offset;
+			d += offset;
+			s += offset;
 		}
-		d += offset;
-		s += offset;
 		size_t tail = n % 16;
 		n -= tail;
 		if (n >= 16) {
 			memcpy_by_sixteen(d, s, n);
 		}
-		d += n;
-		s += n;
-		memcpy_by_one(d, s, tail);
+		if (tail > 0) {
+			d += n;
+			s += n;
+			memcpy_by_one(d, s, tail);
+		}
 	}
 
 	void memcpy(void *dest, void const *src, size_t len, char const *v) {
